@@ -1,6 +1,6 @@
 # MyReads Project
 
-This is the MyReads project for Udacity's React Nanodegree Course.
+MyReads project using React hooks.
 
 ## Install and Launch the project
 
