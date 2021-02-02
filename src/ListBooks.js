@@ -1,19 +1,19 @@
-import React, { Component } from 'react';
+import React, { useEffect, useState } from 'react';
 import BookShelf from './BookShelf';
 import { Link } from 'react-router-dom';
 import * as BooksAPI from './BooksAPI';
 
-class ListBooks extends Component {
-  state = { bookShelvesMap: {}, books: [] };
-  componentDidMount() {
+const ListBooks = () => {
+  const [bookShelvesMap, setBookShelvesMap] = useState({});
+
+  useEffect(() => {
     BooksAPI.getAll().then((books) => {
-      const bookShelvesMap = this.mapBooksToShelves(books);
-      this.setState(() => ({
-        bookShelvesMap,
-      }));
+      const bookShelvesMap = mapBooksToShelves(books);
+      setBookShelvesMap(bookShelvesMap);
     });
-  }
-  mapBooksToShelves(books = []) {
+  }, []);
+
+  const mapBooksToShelves = (books = []) => {
     const bookShelvesMap = {};
     for (const book of books) {
       if (bookShelvesMap[book.shelf]) {
@@ -23,48 +23,43 @@ class ListBooks extends Component {
       }
     }
     return bookShelvesMap;
-  }
+  };
 
-  updateBookShelf = (book, shelf) => {
+  const updateBookShelf = (book, shelf) => {
     BooksAPI.update(book, shelf).then((res) => {
       BooksAPI.getAll().then((books) => {
-        const bookShelvesMap = this.mapBooksToShelves(books);
-        this.setState(() => ({
-          bookShelvesMap,
-        }));
+        const bookShelvesMap = mapBooksToShelves(books);
+        setBookShelvesMap(bookShelvesMap);
       });
     });
   };
 
-  render() {
-    const { bookShelvesMap } = this.state;
-    return (
-      <div>
-        <div className='list-books'>
-          <div className='list-books-title'>
-            <h1>MyReads</h1>
-          </div>
-          <div className='list-books-content'>
-            {Object.keys(bookShelvesMap).map((key, i) => {
-              return (
-                <BookShelf
-                  onSelectShelf={this.updateBookShelf}
-                  bookShelfBooks={bookShelvesMap[key]}
-                  bookShelfNameKey={key}
-                  key={key}
-                />
-              );
-            })}
-          </div>
+  return (
+    <div>
+      <div className='list-books'>
+        <div className='list-books-title'>
+          <h1>MyReads</h1>
         </div>
-        <div className='open-search'>
-          <Link to='/search'>
-            <button>Add a book</button>
-          </Link>
+        <div className='list-books-content'>
+          {Object.keys(bookShelvesMap).map((key, i) => {
+            return (
+              <BookShelf
+                onSelectShelf={updateBookShelf}
+                bookShelfBooks={bookShelvesMap[key]}
+                bookShelfNameKey={key}
+                key={key}
+              />
+            );
+          })}
         </div>
       </div>
-    );
-  }
-}
+      <div className='open-search'>
+        <Link to='/search'>
+          <button>Add a book</button>
+        </Link>
+      </div>
+    </div>
+  );
+};
 
 export default ListBooks;
