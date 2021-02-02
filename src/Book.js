@@ -1,80 +1,82 @@
-import React, { Component } from 'react';
+import React, { useEffect, useState } from 'react';
 import * as BooksAPI from './BooksAPI';
 
-class Book extends Component {
-  state = {
-    book: {},
-  };
+const Book = ({ onSelectShelf, bookProp }) => {
+  const [book, setBook] = useState({});
+  const [bookStyle, setBookstyle] = useState({});
 
-  componentDidMount() {
-    const { book } = this.props;
-    if (book && book.shelf) {
-      this.setState(() => ({
-        book,
-      }));
-    }
+  useEffect(
+    () => {
+      if (bookProp && bookProp.shelf) {
+        setBook(bookProp);
+      }
 
-    if (book && !book.shelf) {
-      BooksAPI.get(book.id).then((book) => {
-        this.setState(() => ({
-          book,
-        }));
-      });
-    }
-  }
+      if (bookProp && !bookProp.shelf) {
+        BooksAPI.get(bookProp.id).then((book) => {
+          setBook(book);
+        });
+      }
+    },
+    [bookProp]
+  );
 
-  handleOnChange = (event) => {
+  useEffect(
+    () => {
+      const style = {
+        width: 128,
+        height: 193,
+      };
+
+      if (book && book.imageLinks) {
+        style.backgroundImage = `url("${book.imageLinks.thumbnail}")`;
+      }
+
+      setBookstyle({ style });
+    },
+    [book]
+  );
+
+  const handleOnChange = (event) => {
     const newShelfValue = event.target.value;
-    const bookState = this.state.book;
+    const bookState = book;
     bookState.shelf = newShelfValue;
 
-    this.setState(() => ({ book: bookState }));
-    if (this.props.onSelectShelf) {
-      this.props.onSelectShelf(this.state.book, newShelfValue);
+    setBook(bookState);
+    if (onSelectShelf) {
+      onSelectShelf(book, newShelfValue);
     }
   };
 
-  render() {
-    const { book } = this.state;
-    const style = {
-      width: 128,
-      height: 193,
-    };
-
-    if (book && book.imageLinks) {
-      style.backgroundImage = `url("${book.imageLinks.thumbnail}")`;
-    }
-    return (
-      <li>
-        <div className='book'>
-          <div className='book-top'>
-            <div className='book-cover' style={style} />
-            <div className='book-shelf-changer'>
-              <select value={book.shelf} onChange={this.handleOnChange}>
-                <option value='move' disabled>
-                  Move to...
-                </option>
-                <option value='currentlyReading'>Currently Reading</option>
-                <option value='wantToRead'>Want to Read</option>
-                <option value='read'>Read</option>
-                <option value='none'>None</option>
-              </select>
-            </div>
+  return (
+    <li>
+      <div className='book'>
+        <div className='book-top'>
+          <div className='book-cover' style={bookStyle.style} />
+          <div className='book-shelf-changer'>
+            <select value={book.shelf} onChange={handleOnChange}>
+              <option value='move' disabled>
+                Move to...
+              </option>
+              <option value='currentlyReading'>Currently Reading</option>
+              <option value='wantToRead'>Want to Read</option>
+              <option value='read'>Read</option>
+              <option value='none'>None</option>
+            </select>
           </div>
-          <div className='book-title'>{book.title}</div>
-          {book &&
-            book.authors &&
-            book.authors.map((author) => {
-              return (
-                <div className='book-authors' key={author}>
-                  {author}
-                </div>
-              );
-            })}
         </div>
-      </li>
-    );
-  }
-}
+        <div className='book-title'>{book.title}</div>
+        {book &&
+          book.authors &&
+          book.authors.map((author) => {
+            return (
+              <div className='book-authors' key={author}>
+                {author}
+              </div>
+            );
+          })}
+      </div>
+    </li>
+  );
+};
 
 export default Book;

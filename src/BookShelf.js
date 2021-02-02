@@ -10,7 +10,11 @@ const BookShelf = ({ bookShelfBooks, bookShelfNameKey, onSelectShelf }) => {
         <ol className='books-grid'>
           {bookShelfBooks.map((book) => {
             return (
-              <Book book={book} onSelectShelf={onSelectShelf} key={book.id} />
+              <Book
+                bookProp={book}
+                onSelectShelf={onSelectShelf}
+                key={book.id}
+              />
             );
           })}
         </ol>

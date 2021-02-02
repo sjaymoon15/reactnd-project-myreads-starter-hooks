@@ -42,7 +42,7 @@ const Search = () => {
             searchedBooks.map((book) => {
               return (
                 <Book
-                  book={book}
+                  bookProp={book}
                   key={book.id}
                   onSelectShelf={updateBookShelf}
                 />
